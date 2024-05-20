@@ -1,0 +1,50 @@
+{
+    "name": "jump-psexec",
+    "version": "0.0.0",
+    "command_name": "jump-psexec",
+    "extension_author": "c2biz",
+    "original_author": "HavocFramework",
+    "repo_url": "https://github.com/sliverarmory/jump-psexec",
+    "help": "psexec lateral movement module",
+    "long_help": "Example:\n========\nsliver > jump-psexec DOMAIN-DC AgentSvc /tmp/MyAgentSvc.exe \\\\\\\\DOMAIN-DC\\\\c$\\\\windows\\\\MyAgentSvc.exe",
+    "depends_on": "coff-loader",
+    "entrypoint": "go",
+    "files": [
+      {
+        "os": "windows",
+        "arch": "amd64",
+        "path": "psexec.x64.o"
+      },
+      {
+          "os": "windows",
+          "arch": "386",
+          "path": "psexec.x86.o"
+      }
+    ],
+    "arguments": [
+      {
+        "name": "host",
+        "desc": "Remote host",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "serviceName",
+        "desc": "Name of service",
+        "type": "string",
+        "optional": false
+      },
+      {
+        "name": "executable",
+        "desc": "Local path to service executable",
+        "type": "file",
+        "optional": false
+      },
+      {
+        "name": "servicePath",
+        "desc": "Path of service",
+        "type": "string",
+        "optional": false
+      }
+    ]
+  }
