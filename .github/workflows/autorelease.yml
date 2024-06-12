@@ -49,6 +49,10 @@ jobs:
         run: |
           ./make_bof.sh ./Jump-exec/WMI/ProcCreate/
 
+      - name: Build nanorobeus
+        run: |
+          ./make_bof.sh ./nanorobeus/
+
       - name: "Publish Release"
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
